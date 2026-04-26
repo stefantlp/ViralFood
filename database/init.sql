@@ -6,7 +6,14 @@ CREATE SCHEMA IF NOT EXISTS orders;
 CREATE TABLE auth.admin_users (
                                   id SERIAL PRIMARY KEY,
                                   username VARCHAR(50) UNIQUE NOT NULL,
+                                  email VARCHAR(255) UNIQUE NOT NULL,
                                   password_hash VARCHAR(255) NOT NULL,
+                                  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                  reset_token VARCHAR(255),
+                                  reset_token_expires_at TIMESTAMP,
+                                  pending_email VARCHAR(255),
+                                  email_change_token VARCHAR(255),
+                                  email_change_token_expires_at TIMESTAMP,
                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -29,7 +36,8 @@ CREATE TABLE reservations.restaurant_tables (
                                                 id SERIAL PRIMARY KEY,
                                                 table_number INTEGER UNIQUE NOT NULL,
                                                 capacity INTEGER NOT NULL,
-                                                status VARCHAR(20) DEFAULT 'AVAILABLE'
+                                                status VARCHAR(20) DEFAULT 'AVAILABLE',
+                                                access_code VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE reservations.reservations (
