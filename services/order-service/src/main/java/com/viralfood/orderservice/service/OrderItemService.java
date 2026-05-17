@@ -43,7 +43,7 @@ public class OrderItemService {
     }
 
     public ResponseEntity<Long> getOrderCountByMenuItem(Integer menuItemId) {
-        return ResponseEntity.ok(orderItemRepository.countByMenuItemId(menuItemId));
+        return ResponseEntity.ok(orderItemRepository.sumQuantityByMenuItemIdAndOrderCompleted(menuItemId));
     }
 
     public OrderItemResponse mapToResponse(OrderItem item) {
