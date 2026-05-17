@@ -44,11 +44,12 @@ function Home() {
         const available = response.data.filter((item) => item.available)
         setMenuItems(available)
 
+        const sorted = [...available].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 6)
         const counts = await Promise.all(
-          available.slice(0, 6).map((item) =>
+          sorted.map((item) =>
             axios.get<number>(`http://localhost:8083/order-items/count/menu-item/${item.id}`)
-              .then((res) => ({ id: item.id, count: res.data }))
-              .catch(() => ({ id: item.id, count: 0 }))
+              .then((res) => ({ id: item.id, count: Number(res.data) }))
+              .catch((err) => { console.error(`Count error for item ${item.id}:`, err); return { id: item.id, count: 0 } })
           )
         )
         const countsMap: Record<number, number> = {}
