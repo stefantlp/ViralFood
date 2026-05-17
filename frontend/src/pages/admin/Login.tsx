@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosConfig'
@@ -11,21 +11,13 @@ type LoginResponse = {
   token: string
 }
 
-function Login() {
+function Login({ onLogin }: { onLogin: () => void }) {
   const navigate = useNavigate()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    const authUser = localStorage.getItem('authUser')
-
-    if (authUser) {
-      navigate('/admin/profile', { replace: true })
-    }
-  }, [navigate])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -45,7 +37,8 @@ function Login() {
       }
 
       localStorage.setItem('authUser', JSON.stringify(authUser))
-      window.location.replace('/admin/profile')
+      onLogin()
+      navigate('/admin/profile', { replace: true })
     } catch (error: any) {
       const message =
         error?.response?.data?.message || 'Login failed. Please try again.'

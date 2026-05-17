@@ -4,6 +4,8 @@ import axios from 'axios'
 import Navbar from '../../components/layout/client/Navbar'
 import Footer from '../../components/layout/client/Footer'
 
+const BASE = 'http://localhost:8000'
+
 type MenuItem = {
   id: number
   name: string
@@ -49,8 +51,8 @@ function OrderPage() {
     const loadMenu = async () => {
       try {
         const [itemsRes, catsRes] = await Promise.all([
-          axios.get<MenuItem[]>('http://localhost:8082/menu-items'),
-          axios.get<Category[]>('http://localhost:8082/categories'),
+          axios.get<MenuItem[]>(`${BASE}/menu-items`),
+          axios.get<Category[]>(`${BASE}/categories`)
         ])
         setMenuItems(itemsRes.data.filter((i) => i.available))
         setCategories(catsRes.data)
@@ -95,7 +97,7 @@ function OrderPage() {
   const openModal = async (item: MenuItem) => {
     setSelectedItem(item)
     try {
-      const res = await axios.post<number>(`http://localhost:8082/menu-items/${item.id}/view`)
+      const res = await axios.post<number>(`${BASE}/menu-items/${item.id}/view`)
       const updated = { ...item, viewCount: res.data }
       setMenuItems((prev) => prev.map((i) => i.id === item.id ? updated : i))
       setSelectedItem(updated)
@@ -118,7 +120,7 @@ function OrderPage() {
     setReservationPhone('')
     setIsCheckingTable(true)
     try {
-      const res = await axios.get(`http://localhost:8084/tables/${tableId}`)
+      const res = await axios.get(`${BASE}/tables/${tableId}`)
       setTableStatus(res.data.status?.toUpperCase() ?? 'AVAILABLE')
     } catch {
       setErrorMessage('Table not found. Check the table number and try again.')
@@ -143,7 +145,7 @@ function OrderPage() {
         payload.reservationAlias = reservationAlias
         payload.reservationPhoneNumber = reservationPhone
       }
-      await axios.post('http://localhost:8083/orders', payload)
+      await axios.post(`${BASE}/orders`, payload)
       setShowSuccessPopup(true)
       setCart([])
       setTableId('')

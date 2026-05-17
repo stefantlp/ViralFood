@@ -7,13 +7,13 @@ const navItems = [
   { label: 'Menu', to: '/admin/menu' },
 ]
 
-function Sidebar() {
+function Sidebar({ onLogout }: { onLogout: () => void }) {
   const navigate = useNavigate()
 
   const handleLogout = () => {
     localStorage.removeItem('authUser')
+    onLogout()
     navigate('/login', { replace: true })
-    window.location.reload()
   }
 
   return (

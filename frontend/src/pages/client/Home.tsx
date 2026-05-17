@@ -4,6 +4,8 @@ import axios from 'axios'
 import Navbar from '../../components/layout/client/Navbar'
 import Footer from '../../components/layout/client/Footer'
 
+const BASE = 'http://localhost:8000'
+
 type MenuItem = {
   id: number
   name: string
@@ -40,14 +42,14 @@ function Home() {
   useEffect(() => {
     const loadMenu = async () => {
       try {
-        const response = await axios.get<MenuItem[]>('http://localhost:8082/menu-items')
+        const response = await axios.get<MenuItem[]>(`${BASE}/menu-items`)
         const available = response.data.filter((item) => item.available)
         setMenuItems(available)
 
         const sorted = [...available].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 6)
         const counts = await Promise.all(
           sorted.map((item) =>
-            axios.get<number>(`http://localhost:8083/order-items/count/menu-item/${item.id}`)
+            axios.get<number>(`${BASE}/order-items/count/menu-item/${item.id}`)
               .then((res) => ({ id: item.id, count: Number(res.data) }))
               .catch((err) => { console.error(`Count error for item ${item.id}:`, err); return { id: item.id, count: 0 } })
           )
@@ -56,7 +58,7 @@ function Home() {
         counts.forEach(({ id, count }) => { countsMap[id] = count })
         setOrderCounts(countsMap)
 
-        const creatorsResponse = await axios.get<ContentCreator[]>('http://localhost:8082/content-creators')
+        const creatorsResponse = await axios.get<ContentCreator[]>(`${BASE}/content-creators`)
         setCreators(creatorsResponse.data)
         setCreatorIndex(0)
         setIsCreatorsLoading(false)
@@ -117,7 +119,7 @@ function Home() {
     const item = trendingItems[index]
     if (item) {
       try {
-        const res = await axios.post<number>(`http://localhost:8082/menu-items/${item.id}/view`)
+        const res = await axios.post<number>(`${BASE}/menu-items/${item.id}/view`)
         setMenuItems((prev) => prev.map((i) => i.id === item.id ? { ...i, viewCount: res.data } : i))
       } catch {
         // silent

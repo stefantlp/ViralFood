@@ -1,0 +1,217 @@
+networks:
+  backend-network:
+    driver: overlay
+  frontend-network:
+    driver: overlay
+  monitoring-network:
+    driver: overlay
+  management-network:
+    driver: overlay
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+  portainer_data:
+
+configs:
+  kong_config:
+    file: ./kong/kong.yml
+  prometheus_config:
+    file: ./monitoring/prometheus.yml
+
+services:
+  postgres:
+    image: stefantlp/viralfood-postgres:latest
+    environment:
+      POSTGRES_DB: viralfood_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@viralfood.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - backend-network
+      - management-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  auth-service:
+    image: stefantlp/viralfood-auth:latest
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://viralfood_postgres:5432/viralfood_db?currentSchema=auth
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - backend-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  menu-service:
+    image: stefantlp/viralfood-menu:latest
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://viralfood_postgres:5432/viralfood_db?currentSchema=menu
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - backend-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  order-service:
+    image: stefantlp/viralfood-order:latest
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://viralfood_postgres:5432/viralfood_db?currentSchema=orders
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - backend-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  reservation-service:
+    image: stefantlp/viralfood-reservation:latest
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://viralfood_postgres:5432/viralfood_db?currentSchema=reservations
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - backend-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: stefantlp/viralfood-frontend:latest
+    ports:
+      - "3000:80"
+    networks:
+      - frontend-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  kong:
+    image: kong:3.6
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    configs:
+      - source: kong_config
+        target: /kong/declarative/kong.yml
+    networks:
+      - frontend-network
+      - backend-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - management-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      - monitoring-network
+      - backend-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitoring-network
+      - management-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager

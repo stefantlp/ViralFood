@@ -4,6 +4,8 @@ import CategorySidebar from '../../components/layout/admin/menu/CategorySidebar'
 import ProductGrid from '../../components/layout/admin/menu/ProductGrid'
 import ProductFormModal from '../../components/layout/admin/menu/ProductFormModal'
 
+const BASE = 'http://localhost:8000'
+
 type Category = {
   id: number
   name: string
@@ -35,7 +37,7 @@ function Menu() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
   const loadCategories = async () => {
-    const response = await api.get<Category[]>('http://localhost:8082/categories')
+    const response = await api.get<Category[]>(`${BASE}/categories`)
     setCategories(response.data)
 
     if (response.data.length > 0 && selectedCategoryId === null) {
@@ -44,7 +46,7 @@ function Menu() {
   }
 
   const loadProducts = async () => {
-    const response = await api.get<Product[]>('http://localhost:8082/menu-items')
+    const response = await api.get<Product[]>(`${BASE}/menu-items`)
     setProducts(response.data)
   }
 
@@ -82,7 +84,7 @@ function Menu() {
     categoryId: number
   }) => {
     try {
-      await api.post('http://localhost:8082/menu-items', payload)
+      await api.post(`${BASE}/menu-items`, payload)
       await loadAll()
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || 'Failed to add product.')
@@ -103,7 +105,7 @@ function Menu() {
     }
 
     try {
-      await api.put(`http://localhost:8082/menu-items/${editingProduct.id}`, payload)
+      await api.put(`${BASE}/menu-items/${editingProduct.id}`, payload)
       await loadAll()
       setEditingProduct(null)
     } catch (error: any) {
@@ -114,7 +116,7 @@ function Menu() {
 
   const handleDeleteProduct = async (productId: number) => {
     try {
-      await api.delete(`http://localhost:8082/menu-items/${productId}`)
+      await api.delete(`${BASE}/menu-items/${productId}`)
       await loadAll()
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || 'Failed to delete product.')

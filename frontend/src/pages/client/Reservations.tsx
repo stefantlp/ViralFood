@@ -4,6 +4,8 @@ import axios from 'axios'
 import Navbar from '../../components/layout/client/Navbar'
 import Footer from '../../components/layout/client/Footer'
 
+const BASE = 'http://localhost:8000'
+
 function Reservations() {
   const [customerAlias, setCustomerAlias] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -20,7 +22,7 @@ function Reservations() {
     setIsSubmitting(true)
 
     try {
-      await axios.post('http://localhost:8084/reservations', {
+      await axios.post(`${BASE}/reservations`, {
         customerAlias,
         phoneNumber,
         reservationTime,
