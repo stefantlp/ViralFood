@@ -42,6 +42,10 @@ public class OrderItemService {
         return ResponseEntity.ok("Order item deleted successfully");
     }
 
+    public ResponseEntity<Long> getOrderCountByMenuItem(Integer menuItemId) {
+        return ResponseEntity.ok(orderItemRepository.countByMenuItemId(menuItemId));
+    }
+
     public OrderItemResponse mapToResponse(OrderItem item) {
         OrderItemResponse response = new OrderItemResponse();
         response.setId(item.getId());

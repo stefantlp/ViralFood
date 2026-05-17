@@ -118,4 +118,17 @@ public class MenuItemService {
         menuItemRepository.deleteById(id);
         return ResponseEntity.ok("Menu item deleted successfully");
     }
+
+    public ResponseEntity<?> incrementViewCount(Integer id) {
+        Optional<MenuItem> optionalMenuItem = menuItemRepository.findById(id);
+        if (optionalMenuItem.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Menu item not found");
+        }
+
+        MenuItem menuItem = optionalMenuItem.get();
+        menuItem.setViewCount(menuItem.getViewCount() == null ? 1 : menuItem.getViewCount() + 1);
+        menuItemRepository.save(menuItem);
+
+        return ResponseEntity.ok(menuItem.getViewCount());
+    }
 }

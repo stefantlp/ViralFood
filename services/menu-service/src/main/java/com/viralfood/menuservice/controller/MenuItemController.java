@@ -51,4 +51,9 @@ public class MenuItemController {
     public ResponseEntity<?> deleteMenuItem(@PathVariable Integer id) {
         return menuItemService.deleteMenuItem(id);
     }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<?> incrementViewCount(@PathVariable Integer id) {
+        return menuItemService.incrementViewCount(id);
+    }
 }

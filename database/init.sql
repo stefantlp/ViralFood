@@ -29,7 +29,19 @@ CREATE TABLE menu.menu_items (
                                  price DECIMAL(10, 2) NOT NULL,
                                  image_url VARCHAR(255),
                                  available BOOLEAN DEFAULT TRUE,
+                                 view_count INTEGER DEFAULT 0,
                                  category_id INTEGER REFERENCES menu.categories(id) ON DELETE SET NULL
+);
+
+CREATE TABLE menu.content_creators (
+                                       id SERIAL PRIMARY KEY,
+                                       handle VARCHAR(100) UNIQUE NOT NULL,
+                                       followers VARCHAR(20) NOT NULL,
+                                       avatar_url VARCHAR(255),
+                                       review TEXT NOT NULL,
+                                       tiktok_url VARCHAR(255),
+                                       food_item_id INTEGER REFERENCES menu.menu_items(id) ON DELETE SET NULL,
+                                       drink_item_id INTEGER REFERENCES menu.menu_items(id) ON DELETE SET NULL
 );
 
 CREATE TABLE reservations.restaurant_tables (

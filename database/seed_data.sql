@@ -72,6 +72,14 @@ INSERT INTO menu.menu_items (name, description, price, image_url, available, cat
                                                                                               ('Vita cu Sos de Piper', 'Muschiulet de vita cu sos de piper', 72.00, NULL, TRUE, 8),
                                                                                               ('Vita Stroganoff', 'Fasii de vita in sos cremos cu ciuperci', 66.00, NULL, TRUE, 8);
 
+INSERT INTO menu.content_creators (handle, followers, avatar_url, review, tiktok_url, food_item_id, drink_item_id) VALUES
+                                                                                                                       ('TasteMakerMia', '2.1M', NULL, 'The Crispy Orange Wings are unreal. I literally drove back the next day.', 'https://www.tiktok.com', 1, 13),
+                                                                                                                       ('TheViralBite', '1.8M', NULL, 'Never thought a lava bowl could break the internet but here we are.', 'https://www.tiktok.com', 2, 14),
+                                                                                                                       ('FoodieFlash', '980K', NULL, 'ViralFood hit different. The presentation alone is TikTok gold.', 'https://www.tiktok.com', 3, 15),
+                                                                                                                       ('StreetEatsRo', '750K', NULL, 'My whole fyp is ViralFood now. Worth every penny.', 'https://www.tiktok.com', 4, 16),
+                                                                                                                       ('BurgerKingRo', '620K', NULL, 'BBQ Burger-ul de la ViralFood e motivul pentru care traiesc.', 'https://www.tiktok.com', 11, 20),
+                                                                                                                       ('PastaVibes', '430K', NULL, 'Carbonara lor e mai buna decat ce am mancat in Italia. Nu glumesc deloc.', 'https://www.tiktok.com', 5, 18);
+
 INSERT INTO reservations.restaurant_tables (table_number, capacity, status, access_code) VALUES
                                                                                              (1, 4, 'AVAILABLE', 'VF-T1-4821'),
                                                                                              (2, 4, 'AVAILABLE', 'VF-T2-9154'),
