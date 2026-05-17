@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/layout/admin/Layout'
 import Login from './pages/admin/Login'
@@ -11,8 +12,12 @@ import ClientOrderPage from './pages/client/OrderPage'
 import Contact from './pages/client/Contact'
 
 function App() {
-    const authUser = localStorage.getItem('authUser')
-    const isAuthenticated = !!authUser
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+        !!localStorage.getItem('authUser')
+    )
+
+    const handleLogin = () => setIsAuthenticated(true)
+    const handleLogout = () => setIsAuthenticated(false)
 
     return (
         <Routes>
@@ -27,7 +32,7 @@ function App() {
                     isAuthenticated ? (
                         <Navigate to="/admin/profile" replace />
                     ) : (
-                        <Login />
+                        <Login onLogin={handleLogin} />
                     )
                 }
             />
@@ -36,7 +41,7 @@ function App() {
                 path="/admin"
                 element={
                     isAuthenticated ? (
-                        <Layout />
+                        <Layout onLogout={handleLogout} />
                     ) : (
                         <Navigate to="/login" replace />
                     )

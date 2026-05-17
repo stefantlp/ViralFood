@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class OrderServiceClient {
 
-    private static final String ORDER_SERVICE_BASE_URL = "http://localhost:8083";
+    private static final String ORDER_SERVICE_BASE_URL = "http://order-service:8083";
 
     private final RestTemplate restTemplate = new RestTemplate();
 

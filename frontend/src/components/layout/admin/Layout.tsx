@@ -2,11 +2,11 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 
-function AdminLayout() {
+function AdminLayout({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar onLogout={onLogout} />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
           <main className="flex-1 p-6">

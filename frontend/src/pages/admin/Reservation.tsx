@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import api from '../../api/axiosConfig'
 
+const BASE = 'http://localhost:8000'
+
 type ReservationItem = {
   id: number
   customerAlias: string
@@ -47,7 +49,7 @@ function Reservation() {
 
   const fetchReservations = async () => {
     const response = await api.get<ReservationItem[]>(
-      'http://localhost:8084/reservations',
+      `${BASE}/reservations`,
     )
     setReservations(response.data)
   }
@@ -96,7 +98,7 @@ function Reservation() {
     setIsSubmitting(true)
 
     try {
-      await api.post('http://localhost:8084/reservations', {
+      await api.post(`${BASE}/reservations`, {
         customerAlias,
         phoneNumber,
         reservationTime,
@@ -116,7 +118,7 @@ function Reservation() {
 
   const handleDeleteReservation = async (id: number) => {
     try {
-      await api.delete(`http://localhost:8084/reservations/${id}`)
+      await api.delete(`${BASE}/reservations/${id}`)
       await loadReservations()
     } catch (error: any) {
       setErrorMessage(
@@ -134,7 +136,7 @@ function Reservation() {
 
     try {
       const response = await api.get<TableItem[]>(
-        `http://localhost:8084/reservations/${reservation.id}/available-tables`,
+        `${BASE}/reservations/${reservation.id}/available-tables`,
       )
       setAvailableTables(response.data)
     } catch (error: any) {
@@ -154,7 +156,7 @@ function Reservation() {
 
     try {
       await api.put(
-        `http://localhost:8084/reservations/${selectedReservation.id}/approve`,
+        `${BASE}/reservations/${selectedReservation.id}/approve`,
         {
           tableId: Number(approveTableId),
         },

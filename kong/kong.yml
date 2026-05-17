@@ -1,0 +1,39 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:8081
+    routes:
+      - name: auth-routes
+        paths:
+          - /auth
+        strip_path: false
+
+  - name: menu-service
+    url: http://menu-service:8082
+    routes:
+      - name: menu-routes
+        paths:
+          - /categories
+          - /menu-items
+          - /content-creators
+        strip_path: false
+
+  - name: order-service
+    url: http://order-service:8083
+    routes:
+      - name: order-routes
+        paths:
+          - /orders
+          - /order-items
+        strip_path: false
+
+  - name: reservation-service
+    url: http://reservation-service:8084
+    routes:
+      - name: reservation-routes
+        paths:
+          - /reservations
+          - /tables
+        strip_path: false

@@ -18,7 +18,7 @@ import com.viralfood.orderservice.dto.Structures.RestaurantTableResponse;
 @Component
 public class ReservationServiceClient {
 
-    private static final String RESERVATION_SERVICE_BASE_URL = "http://localhost:8084";
+    private static final String RESERVATION_SERVICE_BASE_URL = "http://reservation-service:8084";
 
     private final RestTemplate restTemplate = new RestTemplate();
 

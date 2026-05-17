@@ -1,3 +1,19 @@
+networks:
+  backend-network:
+    driver: bridge
+  frontend-network:
+    driver: bridge
+  monitoring-network:
+    driver: bridge
+  management-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+  portainer_data:
+
 services:
   postgres:
     image: postgres:16
@@ -12,6 +28,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend-network
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -24,6 +42,129 @@ services:
       - "5050:80"
     depends_on:
       - postgres
+    networks:
+      - backend-network
+      - management-network
 
-volumes:
-  postgres_data:
+  auth-service:
+    build:
+      context: ./services/auth-service
+    container_name: viralfood-auth
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  menu-service:
+    build:
+      context: ./services/menu-service
+    container_name: viralfood-menu
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  order-service:
+    build:
+      context: ./services/order-service
+    container_name: viralfood-order
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - reservation-service
+    networks:
+      - backend-network
+
+  reservation-service:
+    build:
+      context: ./services/reservation-service
+    container_name: viralfood-reservation
+    restart: always
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: viralfood-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - kong
+    networks:
+      - frontend-network
+
+  kong:
+    image: kong:3.6
+    container_name: viralfood-kong
+    restart: always
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    volumes:
+      - ./kong/kong.yml:/kong/declarative/kong.yml
+    networks:
+      - frontend-network
+      - backend-network
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: viralfood-portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - management-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: viralfood-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring-network
+      - backend-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: viralfood-grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring-network
+      - management-network

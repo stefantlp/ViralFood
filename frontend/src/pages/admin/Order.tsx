@@ -4,6 +4,8 @@ import api from '../../api/axiosConfig'
 import CategorySidebar from '../../components/layout/admin/menu/CategorySidebar'
 import OrderProductGrid from '../../components/layout/admin/menu/OrderProductGrid'
 
+const BASE = 'http://localhost:8000'
+
 type OrderItem = {
   id: number
   orderId: number
@@ -87,12 +89,12 @@ function OrderPage() {
   const [flowMode, setFlowMode] = useState<'start' | 'add'>('start')
 
   const loadOrders = async () => {
-    const response = await api.get<Order[]>('http://localhost:8083/orders')
+    const response = await api.get<Order[]>(`${BASE}/orders`)
     setOrders(response.data)
   }
 
   const loadCategories = async () => {
-    const response = await api.get<Category[]>('http://localhost:8082/categories')
+    const response = await api.get<Category[]>(`${BASE}/categories`)
     setCategories(response.data)
 
     if (response.data.length > 0 && selectedCategoryId === null) {
@@ -101,7 +103,7 @@ function OrderPage() {
   }
 
   const loadMenuItems = async () => {
-    const response = await api.get<MenuItem[]>('http://localhost:8082/menu-items')
+    const response = await api.get<MenuItem[]>(`${BASE}/menu-items`)
     setMenuItems(response.data)
   }
 
@@ -205,7 +207,7 @@ function OrderPage() {
 
     try {
       const response = await api.get<TableResponse>(
-        `http://localhost:8084/tables/${order.tableId}`,
+        `${BASE}/tables/${order.tableId}`,
       )
       setSelectedTable(response.data)
       setTableLookupDone(true)
@@ -221,7 +223,7 @@ function OrderPage() {
 
     try {
       const response = await api.get<TableResponse>(
-        `http://localhost:8084/tables/${Number(tableIdInput)}`,
+        `${BASE}/tables/${Number(tableIdInput)}`,
       )
       setSelectedTable(response.data)
       setTableLookupDone(true)
@@ -283,7 +285,7 @@ function OrderPage() {
     }
 
     try {
-      await api.post('http://localhost:8083/orders', {
+      await api.post(`${BASE}/orders`, {
         tableId,
         accessCode,
         reservationAlias: reservationAlias.trim() || null,
@@ -323,7 +325,7 @@ function OrderPage() {
     }
 
     try {
-      await api.put(`http://localhost:8083/orders/${selectedOrder.id}/status`, {
+      await api.put(`${BASE}/orders/${selectedOrder.id}/status`, {
         status: 'COMPLETED',
       })
 
@@ -337,7 +339,7 @@ function OrderPage() {
 
   const deleteOrder = async (orderId: number) => {
     try {
-      await api.delete(`http://localhost:8083/orders/${orderId}`)
+      await api.delete(`${BASE}/orders/${orderId}`)
       await loadOrders()
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || 'Failed to delete order.')
