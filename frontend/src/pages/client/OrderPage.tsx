@@ -42,7 +42,6 @@ function OrderPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const orderSectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -96,9 +95,7 @@ function OrderPage() {
     setSelectedItem(item)
     try {
       const res = await axios.post<number>(`http://localhost:8082/menu-items/${item.id}/view`)
-      const updated = { ...item, viewCount: res.data }
-      setMenuItems((prev) => prev.map((i) => i.id === item.id ? updated : i))
-      setSelectedItem(updated)
+      setMenuItems((prev) => prev.map((i) => i.id === item.id ? { ...i, viewCount: res.data } : i))
     } catch {
       // silent
     }
@@ -131,7 +128,7 @@ function OrderPage() {
     event.preventDefault()
     setErrorMessage('')
     setSuccessMessage('')
-    if (cart.length === 0) { setErrorMessage('Your cart is empty. Add at least one item before placing an order.'); return }
+    if (cart.length === 0) { setErrorMessage('Add at least one item to your order.'); return }
     setIsSubmitting(true)
     try {
       const payload: any = {
@@ -144,7 +141,7 @@ function OrderPage() {
         payload.reservationPhoneNumber = reservationPhone
       }
       await axios.post('http://localhost:8083/orders', payload)
-      setShowSuccessPopup(true)
+      setSuccessMessage('Order placed successfully! Enjoy your meal. 🎉')
       setCart([])
       setTableId('')
       setAccessCode('')
@@ -174,40 +171,9 @@ function OrderPage() {
         .divider { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent); }
         .cart-btn { animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes progress { from { width: 0%; } to { width: 100%; } }
       `}</style>
 
       <Navbar />
-
-      {showSuccessPopup && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-          <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-8 text-center"
-            style={{ animation: 'scaleIn 0.25s ease' }}
-          >
-            <div className="mb-4 flex items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/30 text-4xl">
-                🎉
-              </div>
-            </div>
-            <h2 className="bebas mb-2 text-3xl text-white">Order Placed!</h2>
-            <p className="mb-1 text-sm text-white/60">Your order has been sent to the kitchen.</p>
-            <p className="mb-6 text-sm text-white/40">Sit back and enjoy — we'll bring it right to you.</p>
-            <div className="h-1 w-full overflow-hidden rounded-full bg-white/10 mb-6">
-              <div
-                className="h-full rounded-full bg-green-500"
-                style={{ animation: 'progress 4s linear forwards' }}
-                onAnimationEnd={() => setShowSuccessPopup(false)}
-              />
-            </div>
-            <button
-              onClick={() => setShowSuccessPopup(false)}
-              className="w-full rounded-xl bg-orange-500 py-3 text-sm font-semibold text-white hover:bg-orange-400 transition-all"
-            >
-              Got it →
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── ITEM MODAL ── */}
       {selectedItem && (

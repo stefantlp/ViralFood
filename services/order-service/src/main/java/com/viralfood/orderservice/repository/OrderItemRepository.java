@@ -14,6 +14,5 @@ import com.viralfood.orderservice.entity.OrderItem;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     List<OrderItem> findByOrder_Id(Integer orderId);
     Optional<OrderItem> findByOrder_IdAndMenuItemId(Integer orderId, Integer menuItemId);
-    @Query("SELECT COALESCE(SUM(oi.quantity), 0) FROM OrderItem oi WHERE oi.menuItemId = :menuItemId AND oi.order.status = 'COMPLETED'")
-    long sumQuantityByMenuItemIdAndOrderCompleted(@Param("menuItemId") Integer menuItemId);
+    long countByMenuItemId(Integer menuItemId);
 }
