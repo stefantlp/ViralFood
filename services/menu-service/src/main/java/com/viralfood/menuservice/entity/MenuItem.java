@@ -28,6 +28,9 @@ public class MenuItem {
 
     private Boolean available = true;
 
+    @Column(name = "view_count")
+    private Integer viewCount = 0;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

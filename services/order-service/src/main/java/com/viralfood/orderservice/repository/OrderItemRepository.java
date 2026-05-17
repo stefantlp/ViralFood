@@ -12,4 +12,5 @@ import com.viralfood.orderservice.entity.OrderItem;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     List<OrderItem> findByOrder_Id(Integer orderId);
     Optional<OrderItem> findByOrder_IdAndMenuItemId(Integer orderId, Integer menuItemId);
+    long countByMenuItemId(Integer menuItemId);
 }

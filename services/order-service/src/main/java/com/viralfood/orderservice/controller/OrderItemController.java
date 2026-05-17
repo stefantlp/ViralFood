@@ -36,4 +36,9 @@ public class OrderItemController {
     public ResponseEntity<?> deleteOrderItem(@PathVariable Integer id) {
         return orderItemService.deleteOrderItem(id);
     }
+
+    @GetMapping("/count/menu-item/{menuItemId}")
+    public ResponseEntity<Long> getOrderCountByMenuItem(@PathVariable Integer menuItemId) {
+        return orderItemService.getOrderCountByMenuItem(menuItemId);
+    }
 }
