@@ -1,0 +1,62 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push auth-service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/auth-service
+          push: true
+          tags: stefantlp/viralfood-auth:latest
+
+      - name: Build and push menu-service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/menu-service
+          push: true
+          tags: stefantlp/viralfood-menu:latest
+
+      - name: Build and push order-service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/order-service
+          push: true
+          tags: stefantlp/viralfood-order:latest
+
+      - name: Build and push reservation-service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/reservation-service
+          push: true
+          tags: stefantlp/viralfood-reservation:latest
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: stefantlp/viralfood-frontend:latest
+
+      - name: Build and push postgres
+        uses: docker/build-push-action@v5
+        with:
+          context: ./database
+          push: true
+          tags: stefantlp/viralfood-postgres:latest
